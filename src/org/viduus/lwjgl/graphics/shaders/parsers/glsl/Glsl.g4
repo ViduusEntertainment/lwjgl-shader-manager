@@ -77,12 +77,12 @@ function_call_header
 
 function_identifier
 	:	type_specifier
-	| postfix_expression
+	|	postfix_expression
 	;
 
 unary_expression
 	:	postfix_expression
-	| INC_OP unary_expression
+	|	INC_OP unary_expression
 	|	DEC_OP unary_expression
 	|	unary_operator unary_expression
 	;
@@ -92,7 +92,7 @@ unary_expression
 unary_operator
 	:	PLUS
 	|	DASH
-	| BANG
+	|	BANG
 	|	TILDE
 	;
 
@@ -100,26 +100,26 @@ unary_operator
 
 multiplicative_expression
 	:	unary_expression
-	| multiplicative_expression STAR unary_expression
+	|	multiplicative_expression STAR unary_expression
 	|	multiplicative_expression SLASH unary_expression
 	|	multiplicative_expression PERCENT unary_expression
 	;
 
 additive_expression
 	:	multiplicative_expression
-	| additive_expression PLUS multiplicative_expression
+	|	additive_expression PLUS multiplicative_expression
 	|	additive_expression DASH multiplicative_expression
 	;
 
 shift_expression
 	:	additive_expression
-	| shift_expression LEFT_OP additive_expression
+	|	shift_expression LEFT_OP additive_expression
 	|	shift_expression RIGHT_OP additive_expression
 	;
 
 relational_expression
 	:	shift_expression
-	| relational_expression LEFT_ANGLE shift_expression
+	|	relational_expression LEFT_ANGLE shift_expression
 	|	relational_expression RIGHT_ANGLE shift_expression
 	|	relational_expression LE_OP shift_expression
 	|	relational_expression GE_OP shift_expression
@@ -591,7 +591,7 @@ case_label
 iteration_statement
 	:	WHILE LEFT_PAREN condition RIGHT_PAREN statement_no_new_scope
 	|	DO statement WHILE LEFT_PAREN expression RIGHT_PAREN SEMICOLON
-	| FOR LEFT_PAREN for_init_statement for_rest_statement RIGHT_PAREN statement_no_new_scope
+	|	FOR LEFT_PAREN for_init_statement for_rest_statement RIGHT_PAREN statement_no_new_scope
 	;
 	
 for_init_statement
@@ -864,15 +864,15 @@ OR_ASSIGN :	'|=';
 
 FLOATCONSTANT
 	:	DECIMAL_NUMBER
-	| DECIMAL_NUMBER 'f'
-	| DECIMAL_NUMBER 'F'
+	|	DECIMAL_NUMBER 'f'
+	|	DECIMAL_NUMBER 'F'
 	;
 
 // Double Constants
 
 DOUBLECONSTANT
 	:	DECIMAL_NUMBER 'lf'
-	| DECIMAL_NUMBER 'LF'
+	|	DECIMAL_NUMBER 'LF'
 	;
 
 // Int Constants
@@ -881,15 +881,15 @@ DOUBLECONSTANT
 
 INTCONSTANT
 	:	SIGNED_NUMBER
-	| SIGN '0' OCTAL_DIGET+
-	| SIGN '0x' HEX_DIGET+
+	|	SIGN '0' OCTAL_DIGET+
+	|	SIGN '0x' HEX_DIGET+
 	;
 
 // Unsigned Int Constants
 
 UINTCONSTANT
 	:	INTCONSTANT 'u'
-	| INTCONSTANT 'U'
+	|	INTCONSTANT 'U'
 	;
 
 // Bool Constants
@@ -903,13 +903,13 @@ BOOLCONSTANT
 
 IDENTIFIER:	NAME;
 
-fragment NAME:	NONDIGET (NONDIGET | DEC_DIGET)*;
+fragment NAME:	NONDIGET (NONDIGET |	DEC_DIGET)*;
 
 fragment NONDIGET:	[a-zA-Z_];
 
 fragment DECIMAL_NUMBER
 	:	SIGNED_NUMBER DOT DEC_DIGET+
-	| SIGNED_NUMBER DOT DEC_DIGET+ [eE] SIGNED_NUMBER
+	|	SIGNED_NUMBER DOT DEC_DIGET+ [eE] SIGNED_NUMBER
 	;
 
 fragment SIGNED_NUMBER:	SIGN NUMBER;
