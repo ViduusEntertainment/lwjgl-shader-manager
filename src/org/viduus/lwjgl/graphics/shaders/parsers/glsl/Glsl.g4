@@ -41,7 +41,8 @@ primary_expression
 
 postfix_expression
 	:	primary_expression
-	|	postfix_expression LEFT_BRACKET integer_expression RIGHT_BRACKET function_call
+	|	postfix_expression LEFT_BRACKET integer_expression RIGHT_BRACKET
+	|	function_call
 	|	postfix_expression DOT FIELD_SELECTION
 	|	postfix_expression INC_OP
 	|	postfix_expression DEC_OP

@@ -18,7 +18,6 @@ import org.junit.Test;
  */
 public class GLSLParserTest {
 
-
 	@Test
 	public void parsingTest() throws IOException {
 		InputStream file_stream = GLSLParserTest.class.getResourceAsStream("test.vert");
