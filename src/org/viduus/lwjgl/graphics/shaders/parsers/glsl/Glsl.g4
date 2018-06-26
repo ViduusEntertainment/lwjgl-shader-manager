@@ -11,18 +11,13 @@ glsl
 	;
 
 top_statement
-	:	define_declaration top_statement
-	|	declaration top_statement
+	:	declaration top_statement
 	|	function_definition top_statement
 	|
 	;
 
 version_declaration
-	:	'#version' INTCONSTANT
-	;
-
-define_declaration
-	:	'#define' variable_identifier primary_expression
+	:	VERSION INTCONSTANT
 	;
 
 variable_identifier
@@ -77,7 +72,7 @@ function_call_header
 
 function_identifier
 	:	type_specifier
-	|	postfix_expression
+	|	IDENTIFIER
 	;
 
 unary_expression
@@ -195,7 +190,8 @@ constant_expression
 	;
 
 declaration
-	:	function_prototype SEMICOLON
+	:	DEFINE IDENTIFIER primary_expression
+	| function_prototype SEMICOLON
 	|	init_declarator_list SEMICOLON
 	|	PRECISION precision_qualifier type_specifier SEMICOLON
 	|	type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE SEMICOLON
@@ -650,6 +646,9 @@ FIELD_SELECTION :	'.';
 
 // Keywords
 
+VERSION : '#version';
+DEFINE : '#define';
+
 INVARIANT :	'invariant';
 PRECISE :	'precise';
 HIGH_PRECISION :	'highp';
@@ -914,7 +913,10 @@ fragment DECIMAL_NUMBER
 
 fragment SIGNED_NUMBER:	SIGN NUMBER;
 
-fragment NUMBER:	NONZERO_DEC_DIGET DEC_DIGET*;
+fragment NUMBER
+	:	NONZERO_DEC_DIGET DEC_DIGET*
+	| '0'
+	;
 
 fragment NONZERO_DEC_DIGET:	[1-9];
 

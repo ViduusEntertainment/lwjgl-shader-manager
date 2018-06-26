@@ -54,18 +54,6 @@ public class GlslBaseListener implements GlslListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDefine_declaration(GlslParser.Define_declarationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDefine_declaration(GlslParser.Define_declarationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterVariable_identifier(GlslParser.Variable_identifierContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -17,11 +17,10 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
 apply plugin: 'antlr'
-//if (rootProject == project) {
+if (rootProject == project) {
   apply plugin: 'org.sonarqube'
-//}
+}
 
 /* -----------------------------------------------------------------------------
  *  Configuration Section
@@ -46,7 +45,7 @@ sonarqube {
 
 // Account for operating system when running in debug mode
 import org.gradle.internal.os.OperatingSystem
-switch ( OperatingSystem.current() ) {
+switch (OperatingSystem.current()) {
 	case OperatingSystem.WINDOWS:
 		break
 	case OperatingSystem.LINUX:
@@ -93,24 +92,24 @@ generateGrammarSource << {
 import groovy.io.FileType
 
 class DeleteDir extends DefaultTask {
-   def baseDir = "."
-   def deleteMe(Object... targets) {
-       def directoryList = []
-       def baseDirectory = new File(baseDir).eachFileRecurse(FileType.DIRECTORIES) {
-           if (targets.contains(it.name)) {
-               directoryList << it
-           }
-       }
-       directoryList.each { dirObj -> 
-           if (dirObj.exists()) {
-               dirObj.deleteDir()
-           }
-       }
-   }
+	def baseDir = "."
+	def deleteMe(Object... targets) {
+		def directoryList = []
+		def baseDirectory = new File(baseDir).eachFileRecurse(FileType.DIRECTORIES) {
+			if (targets.contains(it.name)) {
+				directoryList << it
+			}
+		}
+		directoryList.each { dirObj -> 
+			if (dirObj.exists()) {
+				dirObj.deleteDir()
+			}
+		}
+	}
 }
 
 task cleanAntlr(type: DeleteDir) {
-	baseDir = 'src'
+	baseDir = "${project.projectDir}/src"
 	deleteMe '.antlr'
 }
 

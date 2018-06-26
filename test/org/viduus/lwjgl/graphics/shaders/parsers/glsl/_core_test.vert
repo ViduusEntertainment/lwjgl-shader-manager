@@ -10,16 +10,16 @@ uniform mat4 projection_matrix;
 uniform mat4 view_matrix;
 uniform mat4 model_matrix;
 
-in vec3 in_position;
-in float in_tex_index;
-in vec2 in_tex_coord;
+layout(location = 0) in vec3 in_position;
+layout(location = 1) in float in_tex_index;
+layout(location = 2) in vec2 in_tex_coord;
 
 flat out int pass_tex_index;
 out vec2 pass_tex_loc;
 
 void main(){
 	gl_Position = projection_matrix * view_matrix * model_matrix * vec4(in_position, 1);
-	
+
 	pass_tex_index = int(in_tex_index);
 	pass_tex_loc = in_tex_coord;
 }

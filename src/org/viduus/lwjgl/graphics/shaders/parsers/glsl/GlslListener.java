@@ -40,16 +40,6 @@ public interface GlslListener extends ParseTreeListener {
 	 */
 	void exitVersion_declaration(GlslParser.Version_declarationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link GlslParser#define_declaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterDefine_declaration(GlslParser.Define_declarationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link GlslParser#define_declaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitDefine_declaration(GlslParser.Define_declarationContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link GlslParser#variable_identifier}.
 	 * @param ctx the parse tree
 	 */

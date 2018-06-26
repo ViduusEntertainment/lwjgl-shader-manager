@@ -4,3 +4,5 @@ hs_err_pid*
 .gradle
 build
 .antlr
+.settings
+.project

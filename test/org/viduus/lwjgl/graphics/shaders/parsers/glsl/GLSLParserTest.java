@@ -10,7 +10,10 @@ import java.io.InputStream;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.Test;
+import org.viduus.lwjgl.graphics.shaders.parsers.Processor;
+import org.viduus.lwjgl.graphics.shaders.parsers.glsl.GlslParser.GlslContext;
 
 /**
  * @author ethan
@@ -20,10 +23,18 @@ public class GLSLParserTest {
 
 	@Test
 	public void parsingTest() throws IOException {
-		InputStream file_stream = GLSLParserTest.class.getResourceAsStream("test.vert");
-		GlslLexer lexer = new GlslLexer(new ANTLRInputStream(file_stream));
-		GlslParser parser = new GlslParser(new CommonTokenStream(lexer));
-		parser.glsl();
+		try (InputStream file_stream = GLSLParserTest.class.getResourceAsStream("_expression_test.vert")) {
+			GlslLexer lexer = new GlslLexer(new ANTLRInputStream(file_stream));
+			GlslParser parser = new GlslParser(new CommonTokenStream(lexer));
+			
+			GlslContext context = parser.glsl();
+			
+			ParseTreeWalker walker = new ParseTreeWalker();
+			Processor processor = new Processor();
+			walker.walk(processor, context);
+			
+			System.out.println(processor.symbol_table);
+		}
 	}
 	
 }
