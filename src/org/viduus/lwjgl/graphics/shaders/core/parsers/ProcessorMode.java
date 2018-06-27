@@ -3,13 +3,13 @@
  * 
  * Created on Jun 24, 2018 by Ethan Toney
  */
-package org.viduus.lwjgl.graphics.shaders.parsers;
+package org.viduus.lwjgl.graphics.shaders.core.parsers;
 
 /**
  * @author ethan
  *
  */
-enum ProcessorMode {
+public enum ProcessorMode {
 	WAITING,
 	DECLARATION,
 	DISABLED,

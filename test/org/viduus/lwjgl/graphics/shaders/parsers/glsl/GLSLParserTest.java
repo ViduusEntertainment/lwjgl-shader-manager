@@ -12,8 +12,10 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.Test;
-import org.viduus.lwjgl.graphics.shaders.parsers.Processor;
-import org.viduus.lwjgl.graphics.shaders.parsers.glsl.GlslParser.GlslContext;
+import org.viduus.lwjgl.graphics.shaders.core.parsers.glsl.GlslLexer;
+import org.viduus.lwjgl.graphics.shaders.core.parsers.glsl.GlslParser;
+import org.viduus.lwjgl.graphics.shaders.core.parsers.glsl.GlslProcessor;
+import org.viduus.lwjgl.graphics.shaders.core.parsers.glsl.GlslParser.GlslContext;
 
 /**
  * @author ethan
@@ -23,14 +25,14 @@ public class GLSLParserTest {
 
 	@Test
 	public void parsingTest() throws IOException {
-		try (InputStream file_stream = GLSLParserTest.class.getResourceAsStream("_expression_test.vert")) {
+		try (InputStream file_stream = GLSLParserTest.class.getResourceAsStream("_core_test.vert")) {
 			GlslLexer lexer = new GlslLexer(new ANTLRInputStream(file_stream));
 			GlslParser parser = new GlslParser(new CommonTokenStream(lexer));
 			
 			GlslContext context = parser.glsl();
 			
 			ParseTreeWalker walker = new ParseTreeWalker();
-			Processor processor = new Processor();
+			GlslProcessor processor = new GlslProcessor();
 			walker.walk(processor, context);
 			
 			System.out.println(processor.symbol_table);

@@ -10,9 +10,9 @@ uniform mat4 projection_matrix;
 uniform mat4 view_matrix;
 uniform mat4 model_matrix;
 
-layout(location = 0) in vec3 in_position;
-layout(location = 1) in float in_tex_index;
-layout(location = 2) in vec2 in_tex_coord;
+in vec3 in_position;
+in float in_tex_index;
+in vec2 in_tex_coord;
 
 flat out int pass_tex_index;
 out vec2 pass_tex_loc;

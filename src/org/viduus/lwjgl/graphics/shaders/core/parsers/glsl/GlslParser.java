@@ -1,6 +1,6 @@
 // Generated from org/viduus/lwjgl/graphics/shaders/parsers/glsl/Glsl.g4 by ANTLR 4.6
 
-package org.viduus.lwjgl.graphics.shaders.parsers.glsl;
+package org.viduus.lwjgl.graphics.shaders.core.parsers.glsl;
 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;

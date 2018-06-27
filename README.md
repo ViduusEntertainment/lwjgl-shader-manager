@@ -5,8 +5,9 @@ __note:__ This repository is still in development and is unstable.
 ## Tasks for MVP
 
 - [x] GLSL parser
-- [ ] GLSL processor
-- [ ] LWJGL connector
+- [x] GLSL processor
+- [x] LWJGL program connector
+- [ ] LWJGL variable connector
 - [ ] Unit tests
 - [ ] API Documentation
 - [ ] Examples

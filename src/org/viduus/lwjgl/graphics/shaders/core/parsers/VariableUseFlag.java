@@ -3,7 +3,7 @@
  * 
  * Created on Jun 25, 2018 by Ethan Toney
  */
-package org.viduus.lwjgl.graphics.shaders.parsers;
+package org.viduus.lwjgl.graphics.shaders.core.parsers;
 
 /**
  * @author ethan
