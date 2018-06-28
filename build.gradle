@@ -69,6 +69,9 @@ sourceSets {
 		java {
 			srcDirs = ['test']
 		}
+		resources {
+			srcDirs = ['resources']
+		}
 	}
 }
 
@@ -117,8 +120,9 @@ task cleanAntlr(type: DeleteDir) {
   *  Dependency Section
   */
 
-project.ext.lwjglVersion = "3.1.1"
+project.ext.lwjglVersion = "3.1.6"
 project.ext.antlrVersion = "4.6"
+project.ext.jomlVersion = "1.9.9"
 
 repositories {
 	jcenter()
@@ -135,6 +139,7 @@ dependencies {
 	compile "org.lwjgl:lwjgl-openal:${lwjglVersion}"
 	compile "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
 	compile "org.lwjgl:lwjgl-stb:${lwjglVersion}"
+	compile "org.joml:joml:${jomlVersion}"
 
 	// LWJGL : Windows Natives
 	runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"

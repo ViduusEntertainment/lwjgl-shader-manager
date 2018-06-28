@@ -7,8 +7,9 @@ __note:__ This repository is still in development and is unstable.
 - [x] GLSL parser
 - [x] GLSL processor
 - [x] LWJGL program connector
-- [ ] LWJGL variable connector
-- [ ] Unit tests
+- [x] LWJGL variable connector
+- [x] Processor Unit tests
+- [ ] Variable Unit tests
 - [ ] API Documentation
 - [ ] Examples
 

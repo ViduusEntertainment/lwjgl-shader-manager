@@ -15,18 +15,30 @@
  * 
  * Created on Jun 26, 2018 by Ethan Toney
  */
-package org.viduus.lwjgl.graphics.shaders.core;
+package org.viduus.lwjgl.graphics.shaders.opengl;
+
+import org.viduus.lwjgl.graphics.shaders.core.ShaderManager;
+import org.viduus.lwjgl.graphics.shaders.core.ShaderProgram;
 
 /**
  * @author ethan
  *
  */
-public class ShaderException extends RuntimeException {
+public class GLShaderManager extends ShaderManager {
 
-	private static final long serialVersionUID = -4324426805264293422L;
-
-	public ShaderException(String text, Object ... objects) {
-		super(String.format(text, objects));
+	/**
+	 * @param base_path
+	 */
+	public GLShaderManager(String base_path) {
+		super(base_path);
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderManager#load(java.lang.String)
+	 */
+	@Override
+	protected ShaderProgram load(String name) {
+		return new GLShaderProgram(getPath(name));
+	}
+
 }

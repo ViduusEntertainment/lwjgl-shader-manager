@@ -1,5 +1,17 @@
 /**
- * Copyright 2017-2018, Viduus Entertainment LLC, All rights reserved.
+ * Copyright 2018 Viduus Entertainment LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  * Created on Jun 26, 2018 by Ethan Toney
  */
@@ -14,9 +26,6 @@ import org.viduus.lwjgl.graphics.shaders.core.ShaderProgram;
 import org.viduus.lwjgl.graphics.shaders.core.ShaderSource;
 import org.viduus.lwjgl.graphics.shaders.core.ShaderType;
 import org.viduus.lwjgl.graphics.shaders.core.layouts.JavaLayout;
-import org.viduus.lwjgl.graphics.shaders.core.parsers.Variable;
-import org.viduus.lwjgl.graphics.shaders.core.variables.ShaderAttribute;
-import org.viduus.lwjgl.graphics.shaders.core.variables.ShaderUniform;
 
 /**
  * @author ethan
@@ -28,7 +37,7 @@ public class GLShaderProgram extends ShaderProgram {
 	 * @param absolute_path
 	 * @throws IOException
 	 */
-	public GLShaderProgram(String absolute_path) throws IOException {
+	public GLShaderProgram(String absolute_path) {
 		super(absolute_path, new JavaLayout(), new GlVariableInterface());
 	}
 
@@ -55,49 +64,10 @@ public class GLShaderProgram extends ShaderProgram {
 	protected void link() {
 		GL20.glLinkProgram(id());
 		
-        if (GL20.glGetProgrami(id(), GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
-        		delete();
-            throw new ShaderException("Failed to link shader program, '%s'.%nOpenGL Info Log:%s", name(), GL20.glGetProgramInfoLog(id()));
-        }
-	}
-
-	/* (non-Javadoc)
-	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderProgram#initAttribute(org.viduus.lwjgl.graphics.shaders.core.parsers.Variable)
-	 */
-	@Override
-	protected void bindAttribute(Variable attribute) {
-		int id=0;
-		
-		// Assign variables an id, Has to happen before glLinkProgram
-		for (ShaderArray<ShaderAttribute> array : attribute_variables.values()) {
-			for (ShaderAttribute variable : array) {
-				variable.setId(program_id, ++id);
-			}
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderProgram#bindUniform(org.viduus.lwjgl.graphics.shaders.core.parsers.Variable)
-	 */
-	@Override
-	protected void bindUniform(Variable uniform) {
-		// Assign varaibles an id, Has to happen after glLinkProgram
-		for( ShaderArray<ShaderUniform> array : uniform_variables.values() ){
-			for( ShaderUniform variable : array ){
-				variable.setUniformId( program_id );
-			}
-		}
-		
-		for( ShaderArray<ShaderStruct> array : uniform_structs.values() ){
-			for( ShaderStruct struct : array ){
-				struct.setId( program_id );
-			}
-		}
-		
-		for( ShaderArray<ShaderUniformBlock> array : uniform_blocks.values() ){
-			for( ShaderUniformBlock block : array ){
-				block.setId( program_id );
-			}
+		if (GL20.glGetProgrami(id(), GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
+			String error = GL20.glGetProgramInfoLog(id());
+			delete();
+			throw new ShaderException("Failed to link shader program, '%s'.%nOpenGL Info Log:%s", name(), error);
 		}
 	}
 
@@ -113,7 +83,7 @@ public class GLShaderProgram extends ShaderProgram {
 	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderProgram#close()
 	 */
 	@Override
-	public void close() {
+	public void unbind() {
 		GL20.glUseProgram(0);
 	}
 
@@ -121,7 +91,7 @@ public class GLShaderProgram extends ShaderProgram {
 	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderProgram#use()
 	 */
 	@Override
-	public void use() {
+	public void bind() {
 		GL20.glUseProgram(id());
 	}
 
@@ -131,6 +101,38 @@ public class GLShaderProgram extends ShaderProgram {
 	@Override
 	public void delete() {
 		GL20.glDeleteProgram(id());
+	}
+
+	/* (non-Javadoc)
+	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderProgram#errorCheck(java.lang.String)
+	 */
+	@Override
+	public void errorCheck(String info) {
+		int err_id = GL11.glGetError();
+		if (err_id != GL11.GL_NO_ERROR) {
+			String error_code = "";
+			switch(err_id){
+			case(GL11.GL_INVALID_ENUM):
+				error_code = "GL_INVALID_ENUM";
+				break;
+			case(GL11.GL_INVALID_OPERATION):
+				error_code = "GL_INVALID_OPERATION";
+				break;
+			case(GL11.GL_INVALID_VALUE):
+				error_code = "GL_INVALID_VALUE";
+				break;
+			case(GL11.GL_STACK_OVERFLOW):
+				error_code = "GL_STACK_OVERFLOW";
+				break;
+			case(GL11.GL_STACK_UNDERFLOW):
+				error_code = "GL_STACK_UNDERFLOW";
+				break;
+			case(GL11.GL_OUT_OF_MEMORY):
+				error_code = "GL_OUT_OF_MEMORY";
+				break;
+			}
+			System.err.println("OpenGL Error "+error_code+"("+err_id+"): "+info);
+		}
 	}
 
 }

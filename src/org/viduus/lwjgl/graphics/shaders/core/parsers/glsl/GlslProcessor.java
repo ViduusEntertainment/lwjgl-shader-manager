@@ -1,5 +1,17 @@
 /**
- * Copyright 2017-2018, Viduus Entertainment LLC, All rights reserved.
+ * Copyright 2018 Viduus Entertainment LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  * Created on Jun 24, 2018 by Ethan Toney
  */
@@ -20,6 +32,7 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.viduus.lwjgl.graphics.shaders.core.ShaderType;
 import org.viduus.lwjgl.graphics.shaders.core.parsers.ParserException;
 import org.viduus.lwjgl.graphics.shaders.core.parsers.Processor;
 import org.viduus.lwjgl.graphics.shaders.core.parsers.ProcessorContext;
@@ -39,7 +52,8 @@ public class GlslProcessor extends Processor implements ParseTreeListener {
 	 */
 	private Variable var = new Variable();
 	
-	private ProcessorContext context = new ProcessorContext();
+	private final ProcessorContext context = new ProcessorContext();
+	private final ShaderType type;
 	
 	/**
 	 * Processes the given source file as a GLSL file.
@@ -47,31 +61,32 @@ public class GlslProcessor extends Processor implements ParseTreeListener {
 	 * @param source_file
 	 * @return
 	 */
-	public static GlslProcessor process(File source_file) {
-		GlslProcessor processor = new GlslProcessor();
-		try (InputStream file_stream = new FileInputStream(source_file)) {
-			// read the file
+	public GlslProcessor(File source_file, ShaderType type) {
+		this.type = type;
+		
+		// read the file
+		try (InputStream source_stream = new FileInputStream(source_file)) {
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
 			byte[] buffer = new byte[1024];
 			int length;
-			while ((length = file_stream.read(buffer)) != -1) {
+			while ((length = source_stream.read(buffer)) != -1) {
 			    result.write(buffer, 0, length);
 			}
-			processor.source = result.toString(StandardCharsets.UTF_8.name());
+			source = result.toString(StandardCharsets.UTF_8.name());
+			source_stream.close();
 			
 			// being parsing the file
-			GlslLexer lexer = new GlslLexer(new ANTLRInputStream(processor.source));
+			GlslLexer lexer = new GlslLexer(new ANTLRInputStream(source));
 			GlslParser parser = new GlslParser(new CommonTokenStream(lexer));
 
 			// process the file
 			ParseTreeWalker walker = new ParseTreeWalker();
 			GlslContext context = parser.glsl();
-			walker.walk(processor, context);
-			processor.exists = true;
-			return processor;
+			walker.walk(this, context);
+			exists = true;
 			
 		} catch (FileNotFoundException e) {
-			return null;
+			// do nothing
 			
 		} catch (IOException e) {
 			throw new ParserException(e);
@@ -86,8 +101,8 @@ public class GlslProcessor extends Processor implements ParseTreeListener {
 		case DECLARATION:
 			var.value = context.curr_obj;
 			symbol_table.set(var);
-			System.out.println(var);
 			var = new Variable(var);
+			var.name = null;
 			break;
 			
 		// fall through case
@@ -102,7 +117,7 @@ public class GlslProcessor extends Processor implements ParseTreeListener {
 	}
 	
 	private void handleExpression() {
-		
+		// TODO implement expression evaluation
 	}
 	
 	/**
@@ -166,7 +181,9 @@ public class GlslProcessor extends Processor implements ParseTreeListener {
 	private void handleVaraibleUseSpecifier() {
 		switch (context.type) {
 		case GlslParser.IN:
-			var.usage_flag = VariableUseFlag.ATTRIBUTE;
+			if (type == ShaderType.VERTEX) {
+				var.usage_flag = VariableUseFlag.ATTRIBUTE;
+			}
 			break;
 		case GlslParser.UNIFORM:
 			var.usage_flag = VariableUseFlag.UNIFORM;

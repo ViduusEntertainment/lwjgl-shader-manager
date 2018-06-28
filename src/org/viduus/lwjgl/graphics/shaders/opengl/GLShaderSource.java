@@ -1,5 +1,17 @@
 /**
- * Copyright 2017-2018, Viduus Entertainment LLC, All rights reserved.
+ * Copyright 2018 Viduus Entertainment LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  * 
  * Created on Jun 26, 2018 by Ethan Toney
  */
@@ -34,7 +46,7 @@ public class GLShaderSource extends ShaderSource {
 	 */
 	@Override
 	protected Processor process() {
-		return GlslProcessor.process(file());
+		return new GlslProcessor(file(), type());
 	}
 
 	/* (non-Javadoc)
@@ -65,10 +77,11 @@ public class GLShaderSource extends ShaderSource {
 		GL20.glShaderSource(id(), source());
 		GL20.glCompileShader(id());
 
-        if (GL20.glGetProgrami(id(), GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
-        		delete();
-            throw new ShaderException("Failed to link shader program, '%s'.%nOpenGL Info Log:%s", name(), GL20.glGetProgramInfoLog(id()));
-        }
+		if (GL20.glGetShaderi(id(), GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
+			String error = GL20.glGetShaderInfoLog(id());
+			delete();
+			throw new ShaderException("Failed to compile shader program, '%s'.%nOpenGL Info Log:%s", name(), error);
+		}
 	}
 
 	/* (non-Javadoc)
