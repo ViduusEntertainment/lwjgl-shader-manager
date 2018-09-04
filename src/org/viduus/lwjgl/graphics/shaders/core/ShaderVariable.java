@@ -17,23 +17,49 @@
  */
 package org.viduus.lwjgl.graphics.shaders.core;
 
-import org.viduus.lwjgl.graphics.shaders.core.parsers.Variable;
-import org.viduus.lwjgl.graphics.shaders.core.parsers.VariableUseFlag;
+import org.viduus.lwjgl.graphics.shaders.core.layouts.DataLayout;
+import org.viduus.lwjgl.graphics.shaders.core.layouts.VariableType;
 
 /**
  * @author ethan
  *
  */
-public class ShaderVariable extends Variable {
+public abstract class ShaderVariable {
 
 	protected final ShaderProgram program;
+	protected final String name;
+	protected final UsageFlag usage;
+	protected final VariableType type;
+	protected final int length;
+	protected final Object value;
+	
 	protected int id;
 	
-	public ShaderVariable(ShaderProgram program, Variable var) {
-		super(var);
-		this.program = program;
+	private static String filterName(String name) {
+		int idx = name.indexOf('[');
+		if (idx == -1)
+			idx = name.length();
+		return name.substring(0, idx);
 	}
 	
+	/**
+	 * @param program2
+	 * @param name2
+	 * @param flag
+	 * @param size2
+	 * @param type2
+	 */
+	public ShaderVariable(ShaderProgram program, String name, UsageFlag usage, int length, int gl_type) {
+		this.program = program;
+		this.name = filterName(name);
+		this.usage = usage;
+		this.type = convertGpuType(gl_type);
+		this.length = length;
+		this.value = new Object[length];
+	}
+	
+	protected abstract VariableType convertGpuType(int gpu_type);
+
 	public void id(int id) {
 		this.id = id;
 	}
@@ -42,20 +68,123 @@ public class ShaderVariable extends Variable {
 		return id;
 	}
 	
-	public int byteSize() {
-		return program.dataLayout().getByteSize(type, typeSize());
+	/**
+	 * @return the encompassing shader program for this shader variable.
+	 */
+	public ShaderProgram program() {
+		return program;
 	}
 	
+	/**
+	 * @return the name of this shader variable.
+	 */
+	public String name() {
+		return name;
+	}
+	
+	/**
+	 * @return the type of this shader variable.
+	 */
+	public VariableType type() {
+		return type;
+	}
+	
+	public UsageFlag usage() {
+		return usage;
+	}
+	
+	public int byteSize(DataLayout layout) {
+		return layout.getByteSize(type, typeSize());
+	}
+	
+	public int byteSize() {
+		return byteSize(program.dataLayout());
+	}
+	
+	/**
+	 * 
+	 * @param layout
+	 * @return
+	 */
+	public int typeSize(DataLayout layout) {
+		return layout.getTypeSize(type);
+	}
+	
+	/**
+	 * The encompassing shader program for this varaible's data layout is used.
+	 * 
+	 * @return the size, in bytes, of this varaible's type.
+	 */
 	public int typeSize() {
-		return program.dataLayout().getTypeSize(type);
+		return typeSize(program.dataLayout());
+	}
+
+	/**
+	 * @return The current value of this shader variable.
+	 */
+	public Object value() {
+		return length() == 1 ? ((Object[])value)[0] : value;
+	}
+	
+	/**
+	 * The length of this shader variable. This will be one for all non array variables. For array
+	 * variables it will be the maximum size used in the shader.
+	 * 
+	 * @return
+	 */
+	public int length() {
+		return length;
+	}
+	
+	public void rawValue(int i, Object obj) {
+		// if non array
+		if (i >= length())
+			throw new IndexOutOfBoundsException();
+			
+		((Object[])value)[i] = obj;
+	}
+
+	/**
+	 * Sets the raw value of this shader variable. Does not push the value to the GPU.
+	 * 
+	 * @param obj
+	 */
+	public void rawValue(Object obj) {
+		rawValue(0, obj);
+	}
+	
+	/**
+	 * Sets and pushes the value of this shader variable to the GPU. If it is not a uniform
+	 * variable nothing happens.
+	 * 
+	 * @param obj
+	 */
+	public void value(int i, Object obj) {
+		rawValue(i, obj);
+		push();
+	}
+	
+	public void value(Object obj) {
+		value(0, obj);
+	}
+	
+	/**
+	 * Pushes the value of this shader variable to the GPU. If it is not a uniform variable nothing
+	 * happens.
+	 */
+	public void push() {
+		if (usage == UsageFlag.UNIFORM)
+			program.var_interface.setUniform(program, this, value);
+	}
+	
+	public void usageCheck(UsageFlag flag) {
+		if (usage != flag)
+			throw new ShaderException("Variable '%s' is not a %s variable.", name, flag);
 	}
 	
 	@Override
-	public void value(Object obj) {
-		super.value(obj);
-		
-		if (usage_flag == VariableUseFlag.UNIFORM)
-			program.var_interface.setUniform(program, this, obj);
+	public String toString() {
+		return String.format("variable[name:%s, usage:%s, type:%s, length:%d, value:%s]", name(), usage(), type(), length(), value());
 	}
 	
 }

@@ -15,63 +15,49 @@
  * 
  * Created on Jun 25, 2018 by Ethan Toney
  */
-package org.viduus.lwjgl.graphics.shaders.core.parsers;
+package org.viduus.lwjgl.graphics.shaders.core;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
  * @author ethan
  *
  */
-public class SymbolTable<T extends Variable> {
+public class SymbolTable<T extends ShaderVariable> {
 
 	private Map<String, T> symbols = new HashMap<>();
 	
-	public void set(T var) {
+	public void add(T var) {
 		symbols.put(var.name, var);
 	}
 	
 	public T get(String symbol) {
 		if (!symbols.containsKey(symbol))
-			throw new ParserException("Unexpected symbol '%s'", symbol);
+			throw new RuntimeException(String.format("Variable '%s' does not exist", symbol));
 		return symbols.get(symbol);
+	}
+	
+	public boolean has(String symbol) {
+		return symbols.containsKey(symbol);
 	}
 	
 	@Override
 	public String toString() {
 		return symbols.toString();
 	}
-
-	/**
-	 * @param variables
-	 */
-	@SuppressWarnings("unchecked")
-	public <V extends Variable> void merge(SymbolTable<V> variables, Function<V, T> converter) {
-		variables.symbols.entrySet().forEach(entry -> {
-			T var = (converter == null) ? (T) entry.getValue() : converter.apply(entry.getValue());
-			switch (var.usage_flag) {
-			case UNIFORM:
-			case ATTRIBUTE:
-				// we will rely on driver to make sure that there are no overlapping uniform variables
-				set(var);
-				break;
-			}
-		});
-	}
 	
-	public void merge(SymbolTable<T> variables) {
-		merge(variables, null);
+	public Stream<T> variables() {
+		return symbols.values().stream();
 	}
 	
 	public Stream<T> attributes() {
-		return symbols.values().stream().filter(var -> var.usage_flag.equals(VariableUseFlag.ATTRIBUTE));
+		return variables().filter(var -> var.usage.equals(UsageFlag.ATTRIBUTE));
 	}
 	
 	public Stream<T> uniforms() {
-		return symbols.values().stream().filter(var -> var.usage_flag.equals(VariableUseFlag.UNIFORM));
+		return variables().filter(var -> var.usage.equals(UsageFlag.UNIFORM));
 	}
 	
 	public int size() {

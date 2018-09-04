@@ -17,13 +17,13 @@
  */
 package org.viduus.lwjgl.graphics.shaders.core;
 
+import java.io.IOException;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.viduus.lwjgl.graphics.shaders.core.layouts.DataLayout;
-import org.viduus.lwjgl.graphics.shaders.core.parsers.SymbolTable;
-import org.viduus.lwjgl.graphics.shaders.core.parsers.VariableUseFlag;
-import org.viduus.lwjgl.graphics.shaders.opengl.GlVariableInterface;
 
 /**
  * @author ethan
@@ -31,6 +31,7 @@ import org.viduus.lwjgl.graphics.shaders.opengl.GlVariableInterface;
  */
 public abstract class ShaderProgram {
 
+	private final ShaderManager manager;
 	private final DataLayout layout;
 	private final SymbolTable<ShaderVariable> variables;
 	private final Map<ShaderType, ShaderSource> shaders;
@@ -40,10 +41,11 @@ public abstract class ShaderProgram {
 	
 	private int gpu_id;
 	
-	public ShaderProgram(String absolute_path, DataLayout layout, GlVariableInterface var_interface) {
+	public ShaderProgram(String absolute_path, ShaderManager manager, DataLayout layout, ShaderVariableInterface var_interface) throws IOException {
+		this.name = absolute_path;
+		this.manager = manager;
 		this.layout = layout;
 		this.var_interface = var_interface;
-		this.name = absolute_path;
 		createProgram();
 		
 		// load, compile, and attach shader sources
@@ -57,32 +59,36 @@ public abstract class ShaderProgram {
 		}
 		errorCheck("load, compile, and attach");
 		
+		// finish setting up program
+		link();
+		validate();
+		
 		// collect symbol tables from shaders
 		variables = new SymbolTable<>();
-		shaders.values().forEach(shader -> {
-			if (shader.exists())
-				variables.merge(shader.variables(), var -> new ShaderVariable(this, var));
-		});
+		loadShaderVariables(variables);
 		
 		// deal with attributes
 		variables.attributes().forEach(var -> var_interface.bindAttribute(this, var));
 		errorCheck("attributes");
 		
-		// finish setting up program
-		link();
-		errorCheck("link");
-		validate();
-		errorCheck("validate");
-		
 		// deal with uniforms
-		variables.uniforms().forEach(var -> var_interface.bindUniform(this, var));
+		variables.uniforms().forEach(var -> {
+			var_interface.bindUniform(this, var);
+			var_interface.loadUniform(this, var);
+		});
 		errorCheck("uniforms");
 	}
 	
+	protected abstract void loadShaderVariables(SymbolTable<ShaderVariable> variables);
+
 	public abstract void errorCheck(String info);
 	
 	public String name() {
 		return name;
+	}
+	
+	ShaderManager manager() {
+		return manager;
 	}
 	
 	public void id(int id) {
@@ -97,11 +103,32 @@ public abstract class ShaderProgram {
 		return layout;
 	}
 	
+	public boolean uniformExists(String name) {
+		return variables.has(name) && variables.get(name).usage == UsageFlag.UNIFORM;
+	}
+	
 	public ShaderVariable uniform(String name) {
 		ShaderVariable var = variables.get(name);
-		if (var.usage_flag == VariableUseFlag.UNIFORM)
-			return var;
-		throw new ShaderException("Variable '%s' is not a uniform variable.", name);
+		var.usageCheck(UsageFlag.UNIFORM);
+		return var;
+	}
+	
+	public List<ShaderVariable> uniforms() {
+		return variables.uniforms().collect(Collectors.toList());
+	}
+	
+	public boolean attributeExists(String name) {
+		return variables.has(name) && variables.get(name).usage == UsageFlag.ATTRIBUTE;
+	}
+	
+	public ShaderVariable attribute(String name) {
+		ShaderVariable var = variables.get(name);
+		var.usageCheck(UsageFlag.ATTRIBUTE);
+		return var;
+	}
+	
+	public List<ShaderVariable> attributes() {
+		return variables.attributes().collect(Collectors.toList());
 	}
 	
 	/**
@@ -109,7 +136,7 @@ public abstract class ShaderProgram {
 	 */
 	protected abstract void createProgram();
 	
-	protected abstract ShaderSource loadSource(String absolute_path, ShaderType type);
+	protected abstract ShaderSource loadSource(String absolute_path, ShaderType type) throws IOException;
 	
 	protected abstract void validate();
 	
@@ -118,6 +145,14 @@ public abstract class ShaderProgram {
 	public abstract void unbind();
 
 	public abstract void bind();
+	
+	public abstract void bindAttributes(int byte_offset, ShaderVariable ... attributes);
+	
+	public void bindAttributes(ShaderVariable ... attributes) {
+		bindAttributes(0, attributes);
+	}
+	
+	public abstract void unbindAttributes(ShaderVariable ... attributes);
 	
 	public abstract void delete();
 	

@@ -17,6 +17,8 @@
  */
 package org.viduus.lwjgl.graphics.shaders.opengl;
 
+import java.io.IOException;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
@@ -24,8 +26,6 @@ import org.viduus.lwjgl.graphics.shaders.core.ShaderException;
 import org.viduus.lwjgl.graphics.shaders.core.ShaderProgram;
 import org.viduus.lwjgl.graphics.shaders.core.ShaderSource;
 import org.viduus.lwjgl.graphics.shaders.core.ShaderType;
-import org.viduus.lwjgl.graphics.shaders.core.parsers.Processor;
-import org.viduus.lwjgl.graphics.shaders.core.parsers.glsl.GlslProcessor;
 
 /**
  * @author ethan
@@ -36,17 +36,10 @@ public class GLShaderSource extends ShaderSource {
 	/**
 	 * @param absolute_path
 	 * @param type
+	 * @throws IOException 
 	 */
-	public GLShaderSource(ShaderProgram program, String absolute_path, ShaderType type) {
+	public GLShaderSource(ShaderProgram program, String absolute_path, ShaderType type) throws IOException {
 		super(program, absolute_path, type);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderSource#process()
-	 */
-	@Override
-	protected Processor process() {
-		return new GlslProcessor(file(), type());
 	}
 
 	/* (non-Javadoc)

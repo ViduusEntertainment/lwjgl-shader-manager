@@ -17,6 +17,8 @@
  */
 package org.viduus.lwjgl.graphics.shaders.opengl;
 
+import java.io.IOException;
+
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -24,6 +26,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 import org.viduus.lwjgl.graphics.shaders.core.ShaderManager;
+import org.viduus.lwjgl.graphics.shaders.core.ShaderVariable;
 
 /**
  * @author ethan
@@ -34,8 +37,9 @@ public class GLShaderTest {
 	/**
 	 * Make sure that when you run this you set the JVM argument, -XstartOnFirstThread.
 	 * This test passes if the program finishing executing and there are no errors or warnings.
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		GLFWErrorCallback.createPrint(System.err).set();
 		
 		if (!GLFW.glfwInit())
@@ -61,8 +65,17 @@ public class GLShaderTest {
 		ShaderManager shader_manager = new GLShaderManager("./resources/shaders/glsl");
 		shader_manager.shader("core_test");
 		shader_manager.shader().bind();
-		shader_manager.shader().uniform("number").value(1);
+		
+		shader_manager.shader().attributes().forEach(var -> System.out.println(var));
+		shader_manager.shader().uniforms().forEach(var -> System.out.println(var));
+		System.out.println();
+		
+		shader_manager.shader().uniform("num1").value(1);
 		shader_manager.shader().uniform("projection_matrix").value(new Matrix4f());
+		shader_manager.shader().uniform("tex_buffer").value(5, 1);
+		
+		shader_manager.shader().attributes().forEach(var -> System.out.println(var));
+		shader_manager.shader().uniforms().forEach(var -> System.out.println(var));
 		
 		GLFW.glfwDestroyWindow(window);
 		

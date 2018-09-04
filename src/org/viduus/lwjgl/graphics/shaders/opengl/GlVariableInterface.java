@@ -21,6 +21,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -36,7 +37,7 @@ import org.viduus.lwjgl.graphics.shaders.core.ShaderException;
 import org.viduus.lwjgl.graphics.shaders.core.ShaderProgram;
 import org.viduus.lwjgl.graphics.shaders.core.ShaderVariable;
 import org.viduus.lwjgl.graphics.shaders.core.ShaderVariableInterface;
-import org.viduus.lwjgl.graphics.shaders.core.parsers.glsl.GlslParser;
+import org.viduus.lwjgl.graphics.shaders.core.layouts.VariableType;
 
 /**
  * @author ethan
@@ -62,6 +63,34 @@ public class GlVariableInterface extends ShaderVariableInterface {
 	public void bindUniform(ShaderProgram program, ShaderVariable variable) {
 		variable.id(GL20.glGetUniformLocation(program.id(), variable.name()));
 	}
+	
+	protected static IntBuffer intBufferHelper(MemoryStack stack, int stride, Object[] data, BiConsumer<IntBuffer, Object> normal, Consumer<IntBuffer> backup) {
+		IntBuffer buffer = stack.mallocInt(data.length * stride);
+		for (int i=0 ; i<data.length ; i++) {
+			buffer.position(i * stride);
+			if (data[i] == null) {
+				backup.accept(buffer);
+			} else {
+				normal.accept(buffer, data[i]);
+			}
+		}
+		buffer.position(0);
+		return buffer;
+	}
+
+	protected static FloatBuffer floatBufferHelper(MemoryStack stack, int stride, Object[] data, BiConsumer<FloatBuffer, Object> normal, Consumer<FloatBuffer> backup) {
+		FloatBuffer buffer = stack.mallocFloat(data.length * stride);
+		for (int i=0 ; i<data.length ; i++) {
+			buffer.position(i * stride);
+			if (data[i] == null) {
+				backup.accept(buffer);
+			} else {
+				normal.accept(buffer, data[i]);
+			}
+		}
+		buffer.position(0);
+		return buffer;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderVariableInterface#bindVariableHandlers(java.util.Map)
@@ -72,32 +101,30 @@ public class GlVariableInterface extends ShaderVariableInterface {
 		 *  Java types
 		 */
 		variable_handlers.put(Integer.class, (var, val) -> {
-			if (var.type != GlslParser.BOOL && var.type != GlslParser.INT && var.type != GlslParser.SAMPLER2D)
-				throw new ShaderException("Can not assign variable '%s' a value of type 'int'.", var.name);
+			if (var.type() != VariableType.BOOL && var.type() != VariableType.INT && var.type() != VariableType.SAMPLER_2D)
+				throw new ShaderException("Can not assign variable '%s' a value of type 'int'.", var.name());
 			
 			try (MemoryStack stack = MemoryStack.stackPush()) {
-				IntBuffer data = stack.mallocInt(val.length);
-				for (Object obj : val)
-					data.put((int) obj);
-				data.flip();
+				IntBuffer data = intBufferHelper(stack, 1, val,
+						(b, v) -> b.put((int) v),
+						b -> b.put(0));
 				GL20.glUniform1iv(var.id(), data);
 			}
 		});
 		variable_handlers.put(Float.class, (var, val) -> {
-			if (var.type != GlslParser.FLOAT)
-				throw new ShaderException("Can not assign variable '%s' a value of type 'float'.", var.name);
+			if (var.type() != VariableType.FLOAT)
+				throw new ShaderException("Can not assign variable '%s' a value of type 'float'.", var.name());
 			
 			try (MemoryStack stack = MemoryStack.stackPush()) {
-				FloatBuffer data = stack.mallocFloat(val.length);
-				for (Object obj : val)
-					data.put((float) obj);
-				data.flip();
+				FloatBuffer data = floatBufferHelper(stack, 1, val,
+						(b, v) -> b.put((float) v),
+						b -> b.put(0f));
 				GL20.glUniform1fv(var.id(), data);
 			}
 		});
 		variable_handlers.put(Boolean.class, (var, val) -> {
-			if (var.type != GlslParser.BOOL)
-				throw new ShaderException("Can not assign variable '%s' a value of type 'bool'.", var.name);
+			if (var.type() != VariableType.BOOL)
+				throw new ShaderException("Can not assign variable '%s' a value of type 'bool'.", var.name());
 			
 			int[] data = new int[val.length];
 			for (int i=0 ; i<val.length ; i++)
@@ -110,108 +137,148 @@ public class GlVariableInterface extends ShaderVariableInterface {
 		 */
 		// ivec2
 		variable_handlers.put(Vector2i.class, (var, val) -> {
-			if (var.type != GlslParser.IVEC2)
-				throw new ShaderException("Can not assign variable '%s' a value of type 'ivec2'.", var.name);
+			if (var.type() != VariableType.INT_VEC2)
+				throw new ShaderException("Can not assign variable '%s' a value of type 'ivec2'.", var.name());
 			
 			try (MemoryStack stack = MemoryStack.stackPush()) {
-				IntBuffer data = stack.mallocInt(val.length * 2);
-				for (Object obj : val)
-					((Vector2i)obj).get(data);
-				data.flip();
+				IntBuffer data = intBufferHelper(stack, 2, val,
+						(b, v) -> ((Vector2i)v).get(b),
+						b -> new Vector2i().get(b));
 				GL20.glUniform2iv(var.id(), data);
 			}
 		});
 		// ivec3
 		variable_handlers.put(Vector3i.class, (var, val) -> {
-			if (var.type != GlslParser.IVEC3)
-				throw new ShaderException("Can not assign variable '%s' a value of type 'ivec3'.", var.name);
+			if (var.type() != VariableType.INT_VEC3)
+				throw new ShaderException("Can not assign variable '%s' a value of type 'ivec3'.", var.name());
 
 			try (MemoryStack stack = MemoryStack.stackPush()) {
-				IntBuffer data = stack.mallocInt(val.length * 3);
-				for (Object obj : val)
-					((Vector3i)obj).get(data);
-				data.flip();
+				IntBuffer data = intBufferHelper(stack, 3, val,
+						(b, v) -> ((Vector3i)v).get(b),
+						b -> new Vector3i().get(b));
 				GL20.glUniform3iv(var.id(), data);
 			}
 		});
 		// ivec4
 		variable_handlers.put(Vector4i.class, (var, val) -> {
-			if (var.type != GlslParser.IVEC4)
-				throw new ShaderException("Can not assign variable '%s' a value of type 'ivec4'.", var.name);
+			if (var.type() != VariableType.INT_VEC4)
+				throw new ShaderException("Can not assign variable '%s' a value of type 'ivec4'.", var.name());
 
 			try (MemoryStack stack = MemoryStack.stackPush()) {
-				IntBuffer data = stack.mallocInt(val.length * 4);
-				for (Object obj : val)
-					((Vector4i)obj).get(data);
-				data.flip();
+				IntBuffer data = intBufferHelper(stack, 4, val,
+						(b, v) -> ((Vector4i)v).get(b),
+						b -> new Vector4i().get(b));
 				GL20.glUniform4iv(var.id(), data);
 			}
 		});
 		// vec2
 		variable_handlers.put(Vector2f.class, (var, val) -> {
-			if (var.type != GlslParser.VEC2)
-				throw new ShaderException("Can not assign variable '%s' a value of type 'vec2'.", var.name);
+			if (var.type() != VariableType.FLOAT_VEC2)
+				throw new ShaderException("Can not assign variable '%s' a value of type 'vec2'.", var.name());
 
 			try (MemoryStack stack = MemoryStack.stackPush()) {
-				FloatBuffer data = stack.mallocFloat(val.length * 2);
-				for (Object obj : val)
-					((Vector2f)obj).get(data);
-				data.flip();
+				FloatBuffer data = floatBufferHelper(stack, 2, val,
+						(b, v) -> ((Vector2f)v).get(b),
+						b -> new Vector2f().get(b));
 				GL20.glUniform2fv(var.id(), data);
 			}
 		});
 		// vec3
 		variable_handlers.put(Vector3f.class, (var, val) -> {
-			if (var.type != GlslParser.VEC3)
-				throw new ShaderException("Can not assign variable '%s' a value of type 'vec3'.", var.name);
+			if (var.type() != VariableType.FLOAT_VEC3)
+				throw new ShaderException("Can not assign variable '%s' a value of type 'vec3'.", var.name());
 
 			try (MemoryStack stack = MemoryStack.stackPush()) {
-				FloatBuffer data = stack.mallocFloat(val.length * 3);
-				for (Object obj : val)
-					((Vector3f)obj).get(data);
-				data.flip();
+				FloatBuffer data = floatBufferHelper(stack, 3, val,
+						(b, v) -> ((Vector3f)v).get(b),
+						b -> new Vector3f().get(b));
 				GL20.glUniform3fv(var.id(), data);
 			}
 		});
 		// vec4
 		variable_handlers.put(Vector4f.class, (var, val) -> {
-			if (var.type != GlslParser.VEC4)
-				throw new ShaderException("Can not assign variable '%s' a value of type 'vec4'.", var.name);
+			if (var.type() != VariableType.FLOAT_VEC4)
+				throw new ShaderException("Can not assign variable '%s' a value of type 'vec4'.", var.name());
 
 			try (MemoryStack stack = MemoryStack.stackPush()) {
-				FloatBuffer data = stack.mallocFloat(val.length * 4);
-				for (Object obj : val)
-					((Vector4f)obj).get(data);
-				data.flip();
+				FloatBuffer data = floatBufferHelper(stack, 4, val,
+						(b, v) -> ((Vector4f)v).get(b),
+						b -> new Vector4f().get(b));
 				GL20.glUniform4fv(var.id(), data);
 			}
 		});
 		// mat3
 		variable_handlers.put(Matrix3f.class, (var, val) -> {
-			if (var.type != GlslParser.MAT3)
-				throw new ShaderException("Can not assign variable '%s' a value of type 'mat3'.", var.name);
+			if (var.type() != VariableType.FLOAT_MAT3)
+				throw new ShaderException("Can not assign variable '%s' a value of type 'mat3'.", var.name());
 
 			try (MemoryStack stack = MemoryStack.stackPush()) {
-				FloatBuffer data = stack.mallocFloat(val.length * 9);
-				for (Object obj : val)
-					((Matrix3f)obj).get(data);
-				data.flip();
+				FloatBuffer data = floatBufferHelper(stack, 9, val,
+						(b, v) -> ((Matrix3f)v).get(b),
+						b -> new Matrix3f().get(b));
 				GL20.glUniformMatrix3fv(var.id(), false, data);
 			}
 		});
 		// mat4
 		variable_handlers.put(Matrix4f.class, (var, val) -> {
-			if (var.type != GlslParser.MAT4)
-				throw new ShaderException("Can not assign variable '%s' a value of type 'mat4'.", var.name);
+			if (var.type() != VariableType.FLOAT_MAT4)
+				throw new ShaderException("Can not assign variable '%s' a value of type 'mat4'.", var.name());
 
 			try (MemoryStack stack = MemoryStack.stackPush()) {
-				FloatBuffer data = stack.mallocFloat(val.length * 16);
-				for (Object obj : val)
-					((Matrix4f)obj).get(data);
-				data.flip();
-				GL20.glUniformMatrix4fv(var.id(), false, data);
+				FloatBuffer data = floatBufferHelper(stack, 16, val,
+						(b, v) -> ((Matrix4f)v).get(b),
+						b -> new Matrix4f().get(b));
+				GL20.glUniformMatrix4fv(var.id(), true, data);
 			}
 		});
+	}
+
+	/* (non-Javadoc)
+	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderVariableInterface#bindTypeHandlers(java.util.Map)
+	 */
+	@Override
+	protected void bindTypeHandlers(Map<VariableType, Consumer<ShaderVariable>> type_handlers) {
+		// array like float consumer
+		final Consumer<ShaderVariable> float_consumer = var -> {
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				FloatBuffer data = stack.mallocFloat(var.length());
+				GL20.glGetUniformfv(var.program().id(), var.id(), data);
+				
+				Float[] f_data = new Float[var.length()];
+				for (int i=0 ; i<f_data.length ; i++)
+					f_data[i] = data.get(i);
+				
+				if (f_data.length == 1)
+					var.rawValue(f_data[0]);
+				else
+					var.rawValue(f_data);
+			}
+		};
+		type_handlers.put(VariableType.FLOAT, float_consumer);
+		type_handlers.put(VariableType.FLOAT_VEC2, float_consumer);
+		type_handlers.put(VariableType.FLOAT_VEC3, float_consumer);
+		type_handlers.put(VariableType.FLOAT_VEC4, float_consumer);
+		
+		// array like int consumer
+		final Consumer<ShaderVariable> int_consumer = var -> {
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				IntBuffer data = stack.mallocInt(var.length());
+				GL20.glGetUniformiv(var.program().id(), var.id(), data);
+				
+				Integer[] i_data = new Integer[var.length()];
+				for (int i=0 ; i<i_data.length ; i++)
+					i_data[i] = data.get(i);
+				
+				if (i_data.length == 1)
+					var.rawValue(i_data[0]);
+				else
+					var.rawValue(i_data);
+			}
+		};
+		type_handlers.put(VariableType.INT, int_consumer);
+		type_handlers.put(VariableType.INT_VEC2, int_consumer);
+		type_handlers.put(VariableType.INT_VEC3, int_consumer);
+		type_handlers.put(VariableType.INT_VEC4, int_consumer);
 	}
 
 }

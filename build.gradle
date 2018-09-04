@@ -17,7 +17,6 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'antlr'
 if (rootProject == project) {
   apply plugin: 'org.sonarqube'
 }
@@ -58,9 +57,6 @@ switch (OperatingSystem.current()) {
 
 sourceSets {
 	main {
-		antlr {
-			srcDirs = ['src']
-		}
 		java {
 			srcDirs = ['src']
 		}
@@ -84,44 +80,11 @@ jar {
 	version =  "${projectVersion}"
 }
 
-generateGrammarSource << {
-	copy {
-		from "${buildDir}/generated-src/antlr/main"
-		into "src"
-	}
-	cleanAntlr
-}
-
-import groovy.io.FileType
-
-class DeleteDir extends DefaultTask {
-	def baseDir = "."
-	def deleteMe(Object... targets) {
-		def directoryList = []
-		def baseDirectory = new File(baseDir).eachFileRecurse(FileType.DIRECTORIES) {
-			if (targets.contains(it.name)) {
-				directoryList << it
-			}
-		}
-		directoryList.each { dirObj -> 
-			if (dirObj.exists()) {
-				dirObj.deleteDir()
-			}
-		}
-	}
-}
-
-task cleanAntlr(type: DeleteDir) {
-	baseDir = "${project.projectDir}/src"
-	deleteMe '.antlr'
-}
-
  /* -----------------------------------------------------------------------------
   *  Dependency Section
   */
 
 project.ext.lwjglVersion = "3.1.6"
-project.ext.antlrVersion = "4.6"
 project.ext.jomlVersion = "1.9.9"
 
 repositories {
@@ -164,8 +127,4 @@ dependencies {
 	runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
 	runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-macos"
 	runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-macos"
-	
-	// Antlr
-	antlr "org.antlr:antlr4:${antlrVersion}"
-	compile group: 'org.antlr', name: 'antlr4-runtime', version: '${antlrVersion}'
 }

@@ -16,7 +16,7 @@
 
 #version 330
 
-uniform int number;
+uniform int num1 = 15, num2 = 10;
 
 uniform mat4 projection_matrix;
 uniform mat4 view_matrix;

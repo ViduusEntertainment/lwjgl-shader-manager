@@ -17,6 +17,8 @@
  */
 package org.viduus.lwjgl.graphics.shaders.core;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,14 +43,18 @@ public abstract class ShaderManager {
 		return String.join("/", base_path, name);
 	}
 	
-	protected abstract ShaderProgram load(String name);
+	public File getShaderFile(String path) {
+		return new File(path);
+	}
+	
+	protected abstract ShaderProgram load(String name) throws IOException;
 	
 	/**
 	 * Set the active shader.
 	 * 
 	 * @param name
 	 */
-	public void shader(String name) {
+	public void shader(String name) throws IOException {
 		if (!programs.containsKey(name)) {
 			programs.put(name, load(name));
 		}

@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * Created on Jun 24, 2018 by Ethan Toney
+ * Created on Jun 25, 2018 by Ethan Toney
  */
-package org.viduus.lwjgl.graphics.shaders.core.parsers;
+package org.viduus.lwjgl.graphics.shaders.core;
 
 /**
  * @author ethan
  *
  */
-public enum ProcessorMode {
-	WAITING,
-	DECLARATION,
-	DISABLED,
-	EXPRESSION;
+public enum UsageFlag {
+	ATTRIBUTE,
+	UNIFORM;
 }

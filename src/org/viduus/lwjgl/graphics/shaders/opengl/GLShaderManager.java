@@ -17,6 +17,8 @@
  */
 package org.viduus.lwjgl.graphics.shaders.opengl;
 
+import java.io.IOException;
+
 import org.viduus.lwjgl.graphics.shaders.core.ShaderManager;
 import org.viduus.lwjgl.graphics.shaders.core.ShaderProgram;
 
@@ -37,8 +39,8 @@ public class GLShaderManager extends ShaderManager {
 	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderManager#load(java.lang.String)
 	 */
 	@Override
-	protected ShaderProgram load(String name) {
-		return new GLShaderProgram(getPath(name));
+	protected ShaderProgram load(String name) throws IOException {
+		return new GLShaderProgram(getPath(name), this, new GlVariableInterface());
 	}
 
 }

@@ -18,10 +18,8 @@
 package org.viduus.lwjgl.graphics.shaders.core;
 
 import java.io.File;
-
-import org.viduus.lwjgl.graphics.shaders.core.parsers.Processor;
-import org.viduus.lwjgl.graphics.shaders.core.parsers.SymbolTable;
-import org.viduus.lwjgl.graphics.shaders.core.parsers.Variable;
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * @author ethan
@@ -31,18 +29,20 @@ public abstract class ShaderSource {
 	
 	private int gpu_id;
 	
-	private final Processor processor;
 	private final ShaderType type;
 	private final File source_file;
-	private final String name;
+	private final String
+		name,
+		source;
 
 	/**
 	 * Constructs a new shader source. The shader will also be compiled and attached to the GPU.
 	 * 
 	 * @param absolute_path
 	 * @param type
+	 * @throws IOException 
 	 */
-	public ShaderSource(ShaderProgram program, String absolute_path, ShaderType type) {
+	public ShaderSource(ShaderProgram program, String absolute_path, ShaderType type) throws IOException {
 		this.type = type;
 		
 		switch (type) {
@@ -57,15 +57,17 @@ public abstract class ShaderSource {
 			break;
 		}
 		
-		source_file = new File(absolute_path);
+		source_file = program.manager().getShaderFile(absolute_path);
 		name = source_file.getName();
-		processor = process();
 		
 		// compile and attach to GPU
 		if (exists()) {
+			source = new String(Files.readAllBytes(source_file.toPath()));
 			create();
 			compile();
 			attach(program);
+		} else {
+			source = null;
 		}
 	}
 	
@@ -82,7 +84,7 @@ public abstract class ShaderSource {
 	}
 	
 	protected String source() {
-		return processor.source();
+		return source;
 	}
 	
 	protected abstract void create();
@@ -94,11 +96,7 @@ public abstract class ShaderSource {
 	public abstract void delete();
 	
 	public boolean exists() {
-		return source_file.exists() && processor.exists();
-	}
-	
-	public SymbolTable<Variable> variables() {
-		return processor.symbolTable();
+		return source_file.exists();
 	}
 	
 	protected ShaderType type() {
@@ -108,7 +106,5 @@ public abstract class ShaderSource {
 	protected File file() {
 		return source_file;
 	}
-	
-	protected abstract Processor process();
 	
 }
