@@ -166,11 +166,11 @@ public class GLShaderProgram extends ShaderProgram {
 		for (ShaderVariable attribute : attributes) {
 			int size = attribute.byteSize();
 			int type_length = attribute.typeSize();
+
 			GL20.glEnableVertexAttribArray(attribute.id());
 			GL20.glVertexAttribPointer(attribute.id(), type_length, GL11.GL_FLOAT, false, java_byte_stride, byte_offset);
 			byte_offset += size;
 		}
-		System.out.println(java_byte_stride+" "+byte_offset);
 		errorCheck("bindAttributes");
 	}
 

@@ -44,15 +44,13 @@ import org.viduus.lwjgl.graphics.shaders.core.layouts.VariableType;
  *
  */
 public class GlVariableInterface extends ShaderVariableInterface {
-
-	private int attribute_index = 0;
 	
 	/* (non-Javadoc)
 	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderVariableInterface#bindAttribute(org.viduus.lwjgl.graphics.shaders.core.ShaderProgram, org.viduus.lwjgl.graphics.shaders.core.variables.ShaderAttribute)
 	 */
 	@Override
 	public void bindAttribute(ShaderProgram program, ShaderVariable variable) {
-		variable.id(attribute_index++);
+		variable.id(GL20.glGetAttribLocation(program.id(), variable.name()));
 		GL20.glBindAttribLocation(program.id(), variable.id(), variable.name());
 	}
 
@@ -63,8 +61,8 @@ public class GlVariableInterface extends ShaderVariableInterface {
 	public void bindUniform(ShaderProgram program, ShaderVariable variable) {
 		variable.id(GL20.glGetUniformLocation(program.id(), variable.name()));
 	}
-	
-	protected static IntBuffer intBufferHelper(MemoryStack stack, int stride, Object[] data, BiConsumer<IntBuffer, Object> normal, Consumer<IntBuffer> backup) {
+
+	private static IntBuffer intBufferHelper(MemoryStack stack, int stride, Object[] data, BiConsumer<IntBuffer, Object> normal, Consumer<IntBuffer> backup) {
 		IntBuffer buffer = stack.mallocInt(data.length * stride);
 		for (int i=0 ; i<data.length ; i++) {
 			buffer.position(i * stride);
@@ -78,7 +76,7 @@ public class GlVariableInterface extends ShaderVariableInterface {
 		return buffer;
 	}
 
-	protected static FloatBuffer floatBufferHelper(MemoryStack stack, int stride, Object[] data, BiConsumer<FloatBuffer, Object> normal, Consumer<FloatBuffer> backup) {
+	private static FloatBuffer floatBufferHelper(MemoryStack stack, int stride, Object[] data, BiConsumer<FloatBuffer, Object> normal, Consumer<FloatBuffer> backup) {
 		FloatBuffer buffer = stack.mallocFloat(data.length * stride);
 		for (int i=0 ; i<data.length ; i++) {
 			buffer.position(i * stride);
@@ -228,7 +226,7 @@ public class GlVariableInterface extends ShaderVariableInterface {
 				FloatBuffer data = floatBufferHelper(stack, 16, val,
 						(b, v) -> ((Matrix4f)v).get(b),
 						b -> new Matrix4f().get(b));
-				GL20.glUniformMatrix4fv(var.id(), true, data);
+				GL20.glUniformMatrix4fv(var.id(), false, data);
 			}
 		});
 	}

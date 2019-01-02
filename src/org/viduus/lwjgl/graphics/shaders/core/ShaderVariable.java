@@ -43,11 +43,11 @@ public abstract class ShaderVariable {
 	}
 	
 	/**
-	 * @param program2
-	 * @param name2
-	 * @param flag
-	 * @param size2
-	 * @param type2
+	 * @param program
+	 * @param name
+	 * @param usage
+	 * @param length
+	 * @param gl_type
 	 */
 	public ShaderVariable(ShaderProgram program, String name, UsageFlag usage, int length, int gl_type) {
 		this.program = program;
@@ -94,7 +94,7 @@ public abstract class ShaderVariable {
 	}
 	
 	public int byteSize(DataLayout layout) {
-		return layout.getByteSize(type, typeSize());
+		return layout.getByteSize(type, length);
 	}
 	
 	public int byteSize() {
@@ -184,7 +184,7 @@ public abstract class ShaderVariable {
 	
 	@Override
 	public String toString() {
-		return String.format("variable[name:%s, usage:%s, type:%s, length:%d, value:%s]", name(), usage(), type(), length(), value());
+		return String.format("variable[name:%s, id:%d, usage:%s, type:%s, length:%d, value:%s]", name(), id(), usage(), type(), length(), value());
 	}
 	
 }

@@ -1,8 +1,9 @@
-bin
+bin/
 .DS_Store
 hs_err_pid*
 .gradle
-build
+build/
 .antlr
-.settings
+.settings/
 .project
+out/
