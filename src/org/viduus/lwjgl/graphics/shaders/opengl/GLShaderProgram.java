@@ -148,6 +148,7 @@ public class GLShaderProgram extends ShaderProgram {
 				break;
 			}
 			System.err.println("OpenGL Error "+error_code+"("+err_id+"): "+info);
+			throw new RuntimeException("OpenGL Error "+error_code+"("+err_id+"): "+info);
 		}
 	}
 

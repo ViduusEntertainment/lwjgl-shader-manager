@@ -31,12 +31,9 @@ public abstract class ShaderManager {
 	private final String base_path;
 	private final Map<String, ShaderProgram> programs;
 	
-	private ShaderProgram active_program;
-	
 	public ShaderManager(String base_path) {
 		this.base_path = base_path;
 		programs = new HashMap<>();
-		active_program = null;
 	}
 	
 	protected String getPath(String name) {
@@ -48,27 +45,20 @@ public abstract class ShaderManager {
 	}
 	
 	protected abstract ShaderProgram load(String name) throws IOException;
-	
+
 	/**
-	 * Set the active shader.
-	 * 
+	 * Get the specified shader.
+	 *
 	 * @param name
+	 * @return
+	 * @throws IOException
 	 */
-	public void shader(String name) throws IOException {
+	public ShaderProgram shader(String name) throws IOException {
 		if (!programs.containsKey(name)) {
 			programs.put(name, load(name));
 		}
 		
-		active_program = programs.get(name);
-	}
-	
-	/**
-	 * Get the active shader.
-	 * 
-	 * @return
-	 */
-	public ShaderProgram shader() {
-		return active_program;
+		return programs.get(name);
 	}
 	
 }
