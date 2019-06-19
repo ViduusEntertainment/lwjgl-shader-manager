@@ -14,4 +14,22 @@
  * limitations under the License.
  */
 
-rootProject.name = 'lwjgl-shader-manager'
+package org.viduus.lwjgl.graphics.shaders.core.util;
+
+import java.io.File;
+import java.nio.file.Path;
+
+public class RelativeShaderLoader implements ShaderLoader {
+
+	private final Path base_path;
+
+	public RelativeShaderLoader(Path base_path) {
+		this.base_path = base_path;
+	}
+
+	@Override
+	public File loadShader(String shader_name) {
+		return base_path.resolve(shader_name).toFile();
+	}
+
+}

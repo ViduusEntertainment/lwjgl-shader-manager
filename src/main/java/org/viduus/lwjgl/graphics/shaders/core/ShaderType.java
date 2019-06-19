@@ -13,5 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.viduus.lwjgl.graphics.shaders.core;
 
-rootProject.name = 'lwjgl-shader-manager'
+/**
+ * The different types of shaders
+ */
+public enum ShaderType {
+	VERTEX,
+	FRAGMENT,
+	GEOMETRY
+}

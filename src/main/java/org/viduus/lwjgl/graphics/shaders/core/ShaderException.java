@@ -13,5 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.viduus.lwjgl.graphics.shaders.core;
 
-rootProject.name = 'lwjgl-shader-manager'
+/**
+ * A basic shader exception that could be thrown for any number of reasons. Such as a shader
+ * variable not being found or being of the wrong type.
+ */
+public class ShaderException extends RuntimeException {
+
+	private static final long serialVersionUID = -4324426805264293422L;
+
+	public ShaderException(String text, Object... objects) {
+		super(String.format(text, objects));
+	}
+
+}

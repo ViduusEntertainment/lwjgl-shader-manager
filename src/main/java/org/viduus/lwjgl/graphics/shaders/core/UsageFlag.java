@@ -13,5 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.viduus.lwjgl.graphics.shaders.core;
 
-rootProject.name = 'lwjgl-shader-manager'
+/**
+ * The different type of usage flags for shader variables
+ */
+public enum UsageFlag {
+	ATTRIBUTE,
+	UNIFORM
+}

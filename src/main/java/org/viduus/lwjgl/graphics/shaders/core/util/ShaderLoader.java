@@ -14,4 +14,12 @@
  * limitations under the License.
  */
 
-rootProject.name = 'lwjgl-shader-manager'
+package org.viduus.lwjgl.graphics.shaders.core.util;
+
+import java.io.File;
+
+public interface ShaderLoader {
+
+	File loadShader(String shader_name);
+
+}
