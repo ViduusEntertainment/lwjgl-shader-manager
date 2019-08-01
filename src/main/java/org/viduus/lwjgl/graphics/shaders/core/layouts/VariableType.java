@@ -16,7 +16,9 @@
 package org.viduus.lwjgl.graphics.shaders.core.layouts;
 
 /**
- * @author ethan
+ * Enum containing all possible shader variable types.
+ *
+ * @author Ethan Toney
  */
 public enum VariableType {
 	FLOAT,

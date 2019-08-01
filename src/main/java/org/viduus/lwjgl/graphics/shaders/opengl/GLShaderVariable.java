@@ -26,8 +26,8 @@ import org.viduus.lwjgl.graphics.shaders.core.layouts.VariableType;
  */
 public class GLShaderVariable extends ShaderVariable {
 
-	/**
-	 *
+	/* (non-Javadoc)
+	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderVariable#ShaderVariable(ShaderProgram, String, UsageFlag, int, int)
 	 */
 	public GLShaderVariable(ShaderProgram program, String name, UsageFlag usage, int size, int type) {
 		super(program, name, usage, size, type);

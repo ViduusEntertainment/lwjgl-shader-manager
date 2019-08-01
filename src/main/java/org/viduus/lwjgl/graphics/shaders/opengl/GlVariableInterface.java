@@ -29,6 +29,7 @@ import java.nio.IntBuffer;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author ethan
@@ -61,6 +62,42 @@ public class GlVariableInterface extends ShaderVariableInterface {
 		}
 		buffer.position(0);
 		return buffer;
+	}
+
+	private static Consumer<ShaderVariable> jomlFloatTypeHandler(Function<FloatBuffer, Object> constructor) {
+		return var -> {
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				FloatBuffer data = stack.mallocFloat(var.length() * var.typeSize());
+				GL20.glGetUniformfv(var.program().id(), var.id(), data);
+
+				Object[] f_data = new Object[var.length()];
+				for (int i = 0; i < f_data.length; i++)
+					f_data[i] = constructor.apply(data);
+
+				if (f_data.length == 1)
+					var.rawValue(f_data[0]);
+				else
+					var.rawValue(f_data);
+			}
+		};
+	}
+
+	private static Consumer<ShaderVariable> jomlIntTypeHandler(Function<IntBuffer, Object> constructor) {
+		return var -> {
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				IntBuffer data = stack.mallocInt(var.length() * var.typeSize());
+				GL20.glGetUniformiv(var.program().id(), var.id(), data);
+
+				Object[] i_data = new Object[var.length()];
+				for (int i = 0; i < i_data.length; i++)
+					i_data[i] = constructor.apply(data);
+
+				if (i_data.length == 1)
+					var.rawValue(i_data[0]);
+				else
+					var.rawValue(i_data);
+			}
+		};
 	}
 
 	/* (non-Javadoc)
@@ -227,7 +264,7 @@ public class GlVariableInterface extends ShaderVariableInterface {
 	@Override
 	protected void bindTypeHandlers(Map<VariableType, Consumer<ShaderVariable>> type_handlers) {
 		// array like float consumer
-		final Consumer<ShaderVariable> float_consumer = var -> {
+		type_handlers.put(VariableType.FLOAT, var -> {
 			try (MemoryStack stack = MemoryStack.stackPush()) {
 				FloatBuffer data = stack.mallocFloat(var.length());
 				GL20.glGetUniformfv(var.program().id(), var.id(), data);
@@ -241,14 +278,15 @@ public class GlVariableInterface extends ShaderVariableInterface {
 				else
 					var.rawValue(f_data);
 			}
-		};
-		type_handlers.put(VariableType.FLOAT, float_consumer);
-		type_handlers.put(VariableType.FLOAT_VEC2, float_consumer);
-		type_handlers.put(VariableType.FLOAT_VEC3, float_consumer);
-		type_handlers.put(VariableType.FLOAT_VEC4, float_consumer);
+		});
+		type_handlers.put(VariableType.FLOAT_VEC2, jomlFloatTypeHandler(Vector2f::new));
+		type_handlers.put(VariableType.FLOAT_VEC3, jomlFloatTypeHandler(Vector3f::new));
+		type_handlers.put(VariableType.FLOAT_VEC4, jomlFloatTypeHandler(Vector4f::new));
+		type_handlers.put(VariableType.FLOAT_MAT3, jomlFloatTypeHandler(Matrix3f::new));
+		type_handlers.put(VariableType.FLOAT_MAT4, jomlFloatTypeHandler(Matrix4f::new));
 
 		// array like int consumer
-		final Consumer<ShaderVariable> int_consumer = var -> {
+		type_handlers.put(VariableType.INT, var -> {
 			try (MemoryStack stack = MemoryStack.stackPush()) {
 				IntBuffer data = stack.mallocInt(var.length());
 				GL20.glGetUniformiv(var.program().id(), var.id(), data);
@@ -262,11 +300,10 @@ public class GlVariableInterface extends ShaderVariableInterface {
 				else
 					var.rawValue(i_data);
 			}
-		};
-		type_handlers.put(VariableType.INT, int_consumer);
-		type_handlers.put(VariableType.INT_VEC2, int_consumer);
-		type_handlers.put(VariableType.INT_VEC3, int_consumer);
-		type_handlers.put(VariableType.INT_VEC4, int_consumer);
+		});
+		type_handlers.put(VariableType.INT_VEC2, jomlIntTypeHandler(Vector2i::new));
+		type_handlers.put(VariableType.INT_VEC3, jomlIntTypeHandler(Vector3i::new));
+		type_handlers.put(VariableType.INT_VEC4, jomlIntTypeHandler(Vector4i::new));
 	}
 
 }

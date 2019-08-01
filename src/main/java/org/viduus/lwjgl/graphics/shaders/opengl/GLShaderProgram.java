@@ -29,9 +29,8 @@ import java.nio.IntBuffer;
  */
 public class GLShaderProgram extends ShaderProgram {
 
-	/**
-	 * @param shader_name
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderProgram#ShaderProgram(String, ShaderManager, DataLayout, ShaderVariableInterface)
 	 */
 	public GLShaderProgram(String shader_name, ShaderManager manager, ShaderVariableInterface var_interface) throws IOException {
 		super(shader_name, manager, new JavaLayout(), var_interface);

@@ -39,7 +39,7 @@ if (rootProject == project) {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-project.ext.projectVersion = '0.0.1'
+project.ext.projectVersion = '0.0.2'
 
 sonarqube {
 	properties {
@@ -95,8 +95,8 @@ sourceSets {
   *  Dependency Section
   */
 
-project.ext.lwjglVersion = "3.1.6"
-project.ext.jomlVersion = "1.9.9"
+project.ext.lwjglVersion = "3.2.2"
+project.ext.jomlVersion = "1.9.15"
 
 repositories {
 	jcenter()
@@ -169,7 +169,7 @@ publishing {
 			customizePom(pom)
 			groupId 'org.viduus'
 			artifactId 'lwjgl-shader-manager'
-			version '0.0.1'
+			version "${projectVersion}"
 
 			from components.java
 

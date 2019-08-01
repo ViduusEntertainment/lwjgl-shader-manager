@@ -34,6 +34,7 @@ public abstract class ShaderSource {
 	/**
 	 * Constructs, compiles, and attaches a new shader source to the active shader program.
 	 *
+	 * @param program     The parent shader program
 	 * @param shader_name The name of the shader
 	 * @param type        The type of shader
 	 * @throws IOException     If the file failed to read, not thrown if the file does not exist

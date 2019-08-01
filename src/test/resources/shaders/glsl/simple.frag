@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 Viduus Entertainment LLC
+ * Copyright 2018 Viduus Entertainment LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package org.viduus.lwjgl.graphics.shaders.core.util;
+#version 330
 
-import java.io.File;
+in vec3 pass_color;
 
-/**
- * Interface for mapping shader names to actual shader files.
- */
-public interface ShaderLoader {
+out vec3 out_color;
 
-	File loadShader(String shader_name);
-
+void main() {
+    out_color = pass_color;
 }

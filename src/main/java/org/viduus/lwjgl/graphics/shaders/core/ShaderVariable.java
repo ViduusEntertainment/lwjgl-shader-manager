@@ -33,11 +33,11 @@ public abstract class ShaderVariable {
 	protected int id;
 
 	/**
-	 * @param program
-	 * @param name
-	 * @param usage
-	 * @param length
-	 * @param gl_type
+	 * @param program The parent shader program
+	 * @param name    The name of the variable
+	 * @param usage   Enum flagging whether or not this variable is an attribute or uniform
+	 * @param length  The array length of this variable (1 for non-array variables)
+	 * @param gl_type The glsl type id
 	 */
 	public ShaderVariable(ShaderProgram program, String name, UsageFlag usage, int length, int gl_type) {
 		this.program = program;
@@ -99,8 +99,10 @@ public abstract class ShaderVariable {
 	}
 
 	/**
-	 * @param layout
-	 * @return
+	 * Uses the passed layout to determine the size of this shader variable.
+	 *
+	 * @param layout Layout used to compute variable size.
+	 * @return The size in bytes
 	 */
 	public int typeSize(DataLayout layout) {
 		return layout.getTypeSize(type);
@@ -123,15 +125,21 @@ public abstract class ShaderVariable {
 	}
 
 	/**
-	 * The length of this shader variable. This will be one for all non array variables. For array
-	 * variables it will be the maximum size used in the shader.
+	 * The length of this shader variable.
 	 *
-	 * @return
+	 * @return One for all non array variables. For array variables it will be the maximum size
+	 * used in the shader.
 	 */
 	public int length() {
 		return length;
 	}
 
+	/**
+	 * Sets the raw value of this shader variable. Does not push the value to the GPU.
+	 *
+	 * @param i   Index into this variable to write value
+	 * @param obj New value
+	 */
 	public void rawValue(int i, Object obj) {
 		// if non array
 		if (i >= length())
@@ -141,9 +149,7 @@ public abstract class ShaderVariable {
 	}
 
 	/**
-	 * Sets the raw value of this shader variable. Does not push the value to the GPU.
-	 *
-	 * @param obj
+	 * Shorthand for {@link #rawValue(int, Object)}
 	 */
 	public void rawValue(Object obj) {
 		rawValue(0, obj);
@@ -153,7 +159,7 @@ public abstract class ShaderVariable {
 	 * Sets and pushes the value of this shader variable to the GPU. If it is not a uniform
 	 * variable nothing happens.
 	 *
-	 * @param obj
+	 * @param obj The new value
 	 */
 	public void value(int i, Object obj) {
 		rawValue(i, obj);

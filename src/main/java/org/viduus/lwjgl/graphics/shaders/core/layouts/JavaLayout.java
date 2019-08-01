@@ -16,7 +16,7 @@
 package org.viduus.lwjgl.graphics.shaders.core.layouts;
 
 /**
- * @author ethan
+ * @author Ethan Toney
  */
 public class JavaLayout extends DataLayout {
 

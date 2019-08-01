@@ -66,11 +66,11 @@ import org.viduus.lwjgl.graphics.shaders.core.ShaderException;
  */
 public class Std140 extends DataLayout {
 
-	public static final int BOOLEAN_SIZE_IN_BYTES = 4;
-	public static final int DOUBLE_SIZE_IN_BYTES = 8;
-	public static final int FLOAT_SIZE_IN_BYTES = 4;
-	public static final int INT_SIZE_IN_BYTES = 4;
-	public static final int ALIGNMENT_IN_BYTES = 16;
+	private static final int BOOLEAN_SIZE_IN_BYTES = 4;
+	private static final int DOUBLE_SIZE_IN_BYTES = 8;
+	private static final int FLOAT_SIZE_IN_BYTES = 4;
+	private static final int INT_SIZE_IN_BYTES = 4;
+	private static final int ALIGNMENT_IN_BYTES = 16;
 
 	private int align(int bytes) {
 		return (bytes % ALIGNMENT_IN_BYTES == 0) ?

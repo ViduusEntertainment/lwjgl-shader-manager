@@ -30,10 +30,8 @@ import java.io.IOException;
  */
 public class GLShaderSource extends ShaderSource {
 
-	/**
-	 * @param absolute_path
-	 * @param type
-	 * @throws IOException
+	/* (non-Javadoc)
+	 * @see org.viduus.lwjgl.graphics.shaders.core.ShaderSource#new()
 	 */
 	public GLShaderSource(ShaderProgram program, String absolute_path, ShaderType type) throws IOException {
 		super(program, absolute_path, type);

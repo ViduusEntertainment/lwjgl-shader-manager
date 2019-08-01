@@ -19,6 +19,10 @@ package org.viduus.lwjgl.graphics.shaders.core.util;
 import java.io.File;
 import java.nio.file.Path;
 
+/**
+ * This basic ShaderLoader implementation takes a base path and assumes that all shader names
+ * correspond to paths relative to the base path.
+ */
 public class RelativeShaderLoader implements ShaderLoader {
 
 	private final Path base_path;
